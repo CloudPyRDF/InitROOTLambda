@@ -6,7 +6,7 @@ import io
 def lambda_handler(event, context):
 
     s3 = boto3.resource('s3')
-    obj= s3.Object(event['bucket_name'],'aws_root.zip','')
+    obj= s3.Object(event['bucket_name'],'aws_root.zip')
 
     body = obj.get()['Body']
     with io.FileIO('/mnt/lambda/aws_root.zip', 'w') as file:
