@@ -1,12 +1,18 @@
 import json
 import boto3
 import os
-
+import io
 
 def lambda_handler(event, context):
 
     s3 = boto3.resource('s3')
-    s3.download_file(event['bucket_name'],'aws_root.zip','/mnt/lambda/aws_root.zip')
+    obj= s3.Object(event['bucket_name'],'aws_root.zip','')
+
+    body = obj.get()['Body']
+    with io.FileIO('/mnt/lambda/aws_root.zip', 'w') as file:
+        for b in body._raw_stream:
+            file.write(b)
+
     os.system('mkdir -p /mnt/lambda/root && unzip /mnt/lambda/aws_root.zip -d /mnt/lambda && rm /mnt/lambda/aws_root.zip')
     result=os.system('''
     export PATH=/mnt/lambda/cern_root/chroot/usr/local/sbin:/mnt/lambda/cern_root/chroot/usr/local/bin:/mnt/lambda/cern_root/chroot/usr/sbin:/mnt/lambda/cern_root/chroot/usr/bin:/mnt/lambda/cern_root/chroot/sbin:/mnt/lambda/cern_root/chroot/bin:$PATH && \
