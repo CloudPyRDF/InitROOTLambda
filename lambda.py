@@ -4,20 +4,18 @@ import os
 import io
 
 def lambda_handler(event, context):
-
-    s3 = boto3.resource('s3')
-    obj= s3.Object(event['bucket_name'],'aws_root.zip')
-
-    body = obj.get()['Body']
-    with io.FileIO('/mnt/lambda/aws_root.zip', 'w') as file:
-        for b in body._raw_stream:
-            file.write(b)
-
-    os.system('mkdir -p /mnt/lambda/root && unzip /mnt/lambda/aws_root.zip -d /mnt/lambda && rm /mnt/lambda/aws_root.zip')
+    print("started")
+    os.system('mkdir -p /mnt/cern_root/root')
+    s3 = boto3.client('s3')
+    s3.download_file(event['bucket_name'], 'aws_root.zip', '/mnt/cern_root/aws_root.zip')
+    print("streamed obj")
+    os.system('unzip  /mnt/cern_root/aws_root.zip -d /mnt/cern_root && rm /mnt/cern_root/aws_root.zip')
+    print("unpacked :D")
+    
     result=os.system('''
-    export PATH=/mnt/lambda/cern_root/chroot/usr/local/sbin:/mnt/lambda/cern_root/chroot/usr/local/bin:/mnt/lambda/cern_root/chroot/usr/sbin:/mnt/lambda/cern_root/chroot/usr/bin:/mnt/lambda/cern_root/chroot/sbin:/mnt/lambda/cern_root/chroot/bin:$PATH && \
-    export LD_LIBRARY_PATH=/mnt/lambda/cern_root/chroot/usr/lib64:/mnt/lambda/cern_root/chroot/usr/lib:/usr/lib64:/usr/lib:$LD_LIBRARY_PATH && \
-    export roothome=/mnt/lambda/cern_root/root_install && \
+    export PATH= /mnt/cern_root/cern_root/chroot/usr/local/sbin: /mnt/cern_root/cern_root/chroot/usr/local/bin: /mnt/cern_root/cern_root/chroot/usr/sbin: /mnt/cern_root/cern_root/chroot/usr/bin: /mnt/cern_root/cern_root/chroot/sbin: /mnt/cern_root/cern_root/chroot/bin:$PATH && \
+    export LD_LIBRARY_PATH= /mnt/cern_root/cern_root/chroot/usr/lib64: /mnt/cern_root/cern_root/chroot/usr/lib:/usr/lib64:/usr/lib:$LD_LIBRARY_PATH && \
+    export roothome= /mnt/cern_root/cern_root/root_install && \
     . ${roothome}/bin/thisroot.sh && python3 ${roothome}/PyRDF/introduction.py
     ''')
 
