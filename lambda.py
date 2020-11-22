@@ -25,7 +25,9 @@ def lambda_handler(event, context):
         export roothome=/mnt/cern_root/root_install && \
         chmod 777 /mnt/cern_root/chroot/usr/bin/python3.7 && \
         chmod 777 /mnt/cern_root/root_install/bin/root-config && \
-        . ${roothome}/bin/thisroot.sh && /mnt/cern_root/chroot/usr/bin/python3.7 ${roothome}/PyRDF/introduction.py
+        cd /tmp && \
+        . ${roothome}/bin/thisroot.sh && \
+        /mnt/cern_root/chroot/usr/bin/python3.7 ${roothome}/PyRDF/introduction.py
     ''')
 
     return {
