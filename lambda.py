@@ -4,12 +4,14 @@ import zipfile
 
 import boto3
 
+bucket = os.environ.get('bucket')
+
 
 def lambda_handler(event, context):
     print("started")
     s3 = boto3.client('s3')
     print("downloading obj")
-    s3.download_file(event['bucket_name'], 'aws_root.zip', '/tmp/aws_root.zip')
+    s3.download_file(bucket, 'aws_root.zip', '/tmp/aws_root.zip')
     print("streamed obj")
 
     with zipfile.ZipFile('/tmp/aws_root.zip', 'r') as zip_ref:
@@ -25,13 +27,18 @@ def lambda_handler(event, context):
         export roothome=/mnt/cern_root/root_install && \
         chmod 777 /mnt/cern_root/chroot/usr/bin/python3.7 && \
         chmod 777 /mnt/cern_root/root_install/bin/root-config && \
-        cd /tmp && \
-        . ${roothome}/bin/thisroot.sh && \
+        cd /tmp && . ${roothome}/bin/thisroot.sh && \
         /mnt/cern_root/chroot/usr/bin/python3.7 ${roothome}/PyRDF/introduction.py
     ''')
+
+    if os.WEXITSTATUS(result) != 0:
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Failed to extract ROOT to EFS!'),
+            'result': json.dumps(os.WEXITSTATUS(result))
+        }
 
     return {
         'statusCode': 200,
         'body': json.dumps('Extracted ROOT to EFS!'),
-        'result': json.dumps(result)
     }
