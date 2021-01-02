@@ -32,7 +32,7 @@ def lambda_handler(event, context):
         chmod 777 /mnt/cern_root/chroot/usr/bin/python3.7 && \
         chmod 777 /mnt/cern_root/root_install/bin/root-config && \
         cd /tmp && . ${roothome}/bin/thisroot.sh  && \
-        python3.7 -m pip install cloudpickle
+        python3.7 -m pip install numpy cloudpickle --target=${roothome}
     ''')
     # move inside os.system if wanting to test ASAP for internet connection and working ROOT
     # /mnt/cern_root/chroot/usr/bin/python3.7 ${roothome}/PyRDF/xrootd.py
